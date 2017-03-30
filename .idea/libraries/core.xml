@@ -2,6 +2,7 @@
   <library name="core">
     <CLASSES>
       <root url="jar:///Applications/Processing.app/Contents/Java/core/library/core.jar!/" />
+      <root url="jar://$USER_HOME$/Desktop/Processing/processing-3.3/core/library/core.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

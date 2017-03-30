@@ -1,9 +1,7 @@
 
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.Body;
-import org.jbox2d.dynamics.Fixture;
-import org.jbox2d.dynamics.FixtureDef;
+import org.jbox2d.dynamics.*;
 import processing.core.PImage;
 
 import javax.swing.text.html.parser.Entity;
@@ -31,6 +29,7 @@ public class GameEntity {
     public GameEntity (ze_rebuild parentApp) {
         pApp = parentApp;
     }
+    public GameEntity () {/* Stub constructor to satisfy java's compile requirements.*/}
 
     //Physics fields (does not apply to decoration).
     Body myBody;
@@ -42,43 +41,7 @@ public class GameEntity {
     float pixWidth; //doubles as radius for circular objects
     float pixHeight;
 
-    //Actor fields
-    GameManager.Team myTeam;
-    GameManager.ActorType myActorType;
-    float health;
-    Weapon myWeapon;
-    float maxSpeed;
-    float timeBitten;
-    float biteDelay;
-    float FOV;
-    GameEntity target;
-
-    //Sensor fields
-    HashMap<Integer,GameEntity> sensorLinks;
-    int tickButtonPressed;
-    boolean wasPressed;
-    GameManager.Team teamFilter;
-    HashMap<Integer,GameEntity> touchingObjects;
-
-    //Door fields
-    HashMap<Integer,GameEntity> doorLinks;
-    Vec2 doorClosedPos;
-    Vec2 doorOpenPos;
-    Vec2 hinge;
-    boolean isHinged;
-    boolean fullOpen;
-    boolean fullClosed;
-
-    //Gamelogic fields
-    HashMap<Integer,GameEntity> logicLinks;
-    String label;
-    LogicType myLogicType;
-    GameManager.Team teamAffected;
-    int timerDelay1;
-    int timerDelay2;
-    int strengthOfEffect; //amount of damage to apply per timerDelay2 or speed to MoveLinkedObjects.
-
-    public GameEntity (Vec2 pos, float width, float height, float angle, ClientMapHandler.EntityType type, int id) {
+    public void setCoreProperties (Vec2 pos, float width, float height, float angle, enums.EntityType type, int id) {
         myID = id;
         myType = type;
         this.angle = angle;
@@ -88,49 +51,49 @@ public class GameEntity {
         myType = type;
     }
 
+    public void setPImage (PImage toUse) {
+        myImage = toUse;
+    }
+    public void setColor(int red, int green, int blue) {
+        myColor[0] = red;
+        myColor[1] = green;
+        myColor[2] = blue;
+     }
+
     void makeBody() {
         // Define a polygon (this is what we use for a rectangle)
         PolygonShape sd = new PolygonShape();
-        float box2dr = pApp.box2d.scalarPixelsToWorld(worldWidth/2);
-        sd.setAsBox(box2dr,box2dr);
+        float box2dw = pApp.box2d.scalarPixelsToWorld(worldWidth/2);
+        float box2dh = pApp.box2d.scalarPixelsToWorld(worldHeight /2);
+        sd.setAsBox(box2dw,box2dh);
 
         // Define a fixture
         FixtureDef fd = new FixtureDef();
         fd.shape = sd;
         // Parameters that affect physics
         fd.density = 1;
-        if (myType == enums.EntityType.ACTOR) {
-            fd.density = myType.BIGZOMBIE_DENSITY;
-        }
         fd.friction = 0;
-        if (!isPlayer) {
-            fd.friction = -0.2;
-        }
-        fd.restitution = 0.05;
+        fd.restitution = 0.05f;
 
         // Define the body and make it from the shape
         BodyDef bd = new BodyDef();
-        bd.type = BodyType.DYNAMIC;
-        bd.position.set(box2d.coordPixelsToWorld(pos));
+        if (myType == enums.EntityType.ACTOR || myType == enums.EntityType.SENSOR || myType == enums.EntityType.GAME_LOGIC || myType == enums.EntityType.MAP_ITEM) {
+            bd.type = BodyType.DYNAMIC;
+        } else if (myType == enums.EntityType.DOOR) {
+            bd.type = BodyType.KINEMATIC;
+        } else if (myType == enums.EntityType.FIXED) {
+            bd.type = BodyType.STATIC;
+        } else {
+            bd.type = BodyType.DYNAMIC;
+        }
+        bd.position.set(worldPos);
 
-        body = box2d.createBody(bd);
-        body.setAngularDamping(0.5);
-        body.setLinearDamping(8);
-        Fixture fix = body.createFixture(fd);
-        body.setUserData(this);
-        fix.setUserData(this);
+        myBody = pApp.box2d.createBody(bd);
+        myBody.setAngularDamping(0.5f);
+        myBody.setLinearDamping(8);
+        myFix = myBody.createFixture(fd);
+        myBody.setUserData(this);
+        myFix.setUserData(this);
     }
 
-    }
-
-
-    private enum LogicType {
-        TIMER,
-        TWO_STAGE_TIMER,
-        GAME_END,
-        APPLY_DAMAGE,
-        MOVE_LINKED_OBJECTS,
-        DOOR_OPEN,
-        DOOR_CLOSE,
-    }
 }

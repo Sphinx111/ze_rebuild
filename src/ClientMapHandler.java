@@ -30,7 +30,7 @@ public class ClientMapHandler {
     BufferedReader readToLoad;
     String name = "testMap";
 
-    GameEntity createMapObjectByMouse(Vec2 origin, Vec2 end, Vec2 objWidthSet, EntityType type) {
+    GameEntity createMapObjectByMouse(Vec2 origin, Vec2 end, Vec2 objWidthSet, enums.EntityType type) {
         float midX = (origin.x + end.x) / 2;
         float midY = -(origin.y + end.y) / 2;
         Vec2 midPoint = new Vec2(midX, midY);
