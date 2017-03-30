@@ -2,6 +2,8 @@
  * Created by Eddy on 30/03/2017.
  */
 
+import org.jbox2d.common.Vec2;
+
 import java.io.PrintWriter;
 import java.io.FileReader;
 import java.io.BufferedReader;
@@ -28,7 +30,7 @@ public class ClientMapHandler {
     BufferedReader readToLoad;
     String name = "testMap";
 
-    MapObject createMapObjectByMouse(Vec2 origin, Vec2 end, Vec2 objWidthSet, BlockType type) {
+    GameEntity createMapObjectByMouse(Vec2 origin, Vec2 end, Vec2 objWidthSet, EntityType type) {
         float midX = (origin.x + end.x) / 2;
         float midY = -(origin.y + end.y) / 2;
         Vec2 midPoint = new Vec2(midX, midY);
@@ -37,10 +39,15 @@ public class ClientMapHandler {
         float lengthOfLine = (float) Math.sqrt((vecStartEnd.x * vecStartEnd.x) + (vecStartEnd.y * vecStartEnd.y));
         Vec2 objWidthVec = objWidthSet.add(end.mul(-1));
         float widthOfLine = (float) Math.sqrt((objWidthVec.x * objWidthVec.x) + (objWidthVec.y * objWidthVec.y));
-        MapObject newMapObject = new MapObject(midPoint, lengthOfLine, widthOfLine, -angle, type, uniqueIDCounter);
-        allObjects.add(newMapObject);
-        uniqueIDCounter += 1;
-        return newMapObject;
+        GameEntity newEntity = entityFactory(midPoint, lengthOfLine,widthOfLine,-angle,type,uniqueIDCounter);
+        return newEntity;
+    }
+
+    GameEntity entityFactory(Vec2 center, float width, float height, float angle, EntityType type, int newID) {
+
+
+
+        uniqueIDCounter+=1;
     }
 
     MapObject createItemByMouse(Vec2 origin, ItemType item) {
@@ -262,6 +269,5 @@ public class ClientMapHandler {
             sensorsNeedingLinks.clear();
         }
     }
-
 
 }

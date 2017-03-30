@@ -2,11 +2,14 @@
  * Created by Eddy on 30/03/2017.
  */
 import processing.core.PApplet;
+import shiffman.box2d.Box2DProcessing;
+
 import java.io.Serializable;
 
 public class ze_rebuild extends PApplet {
 
     public ze_rebuild pApp;
+    public Box2DProcessing box2d;
     StateManager stateManager;
     public boolean isServer = false;
 
@@ -15,6 +18,9 @@ public class ze_rebuild extends PApplet {
         size(1300,700);
         frame.setResizable(true);
         pApp = this;
+
+        //initialise box2d-to-processing interface
+        box2d = new Box2DProcessing(pApp);
 
         //initiate state manager to pass setup/draw calls to different elements depending on state.
         stateManager = new StateManager(this);

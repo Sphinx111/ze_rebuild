@@ -205,10 +205,10 @@ public class ClientModule {
                             clientSocket.setSoTimeout(50);
                         try {
                             clientSocket.receive(packetIn);
-                            PacketType receiveType = checkPacketType(packetIn);
-                            if (receiveType == PacketType.SERVER_JOINDATA) {
+                            enums.PacketType receiveType = checkPacketType(packetIn);
+                            if (receiveType == enums.PacketType.SERVER_JOINDATA) {
                                 processJoinData(packetIn);
-                            } else if (receiveType == PacketType.SERVER_UPDATE) {
+                            } else if (receiveType == enums.PacketType.SERVER_UPDATE) {
                                 processUpdate(packetIn);
                             }
                         } catch (SocketTimeoutException toe) {
@@ -297,27 +297,20 @@ public class ClientModule {
 
         }
 
-        PacketType checkPacketType(DatagramPacket packetIn) {
+        enums.PacketType checkPacketType(DatagramPacket packetIn) {
             String dataIn = new String(packetIn.getData()).trim();
             String[] dataLines = dataIn.split("%");
             String type = dataLines[0];
             if (type.equals("SERVER_JOINDATA")) {
-                return PacketType.SERVER_JOINDATA;
+                return enums.PacketType.SERVER_JOINDATA;
             } else if (type.equals("SERVER_UPDATE")) {
-                return PacketType.SERVER_UPDATE;
+                return enums.PacketType.SERVER_UPDATE;
             } else {
-                return PacketType.NO_TYPE;
+                return enums.PacketType.NO_TYPE;
             }
         }
 
     }
 
-    private enum PacketType {
-        CLIENT_REQUEST,
-        CLIENT_INPUT,
-        SERVER_JOINDATA,
-        SERVER_UPDATE,
-        NO_TYPE;
-    }
 
 }
