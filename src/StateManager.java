@@ -1,3 +1,5 @@
+import org.jbox2d.common.Vec2;
+
 /**
  * Created by Eddy on 30/03/2017.
  */
@@ -6,7 +8,7 @@ public class StateManager {
     //This class will handle save/loadgames, and initialises/ends gameplay elements.
 
     private ze_rebuild pApp;
-    protected GAMESTATE currentState;
+    protected enums.GAMESTATE currentState;
     MainMenu mainMenu;
     GameManager gameManager;
     PauseMenu pauseMenu;
@@ -23,7 +25,7 @@ public class StateManager {
     }
 
     public void setup(ze_rebuild parentApp) {
-        currentState = GAMESTATE.STARTUP;
+        currentState = enums.GAMESTATE.STARTUP;
 
         //Load up all modules/assets on a separate thread so that the app does not freeze.
         LoadThread loadThread = new LoadThread();
@@ -42,7 +44,7 @@ public class StateManager {
             pApp.text("Loading", pApp.width/2 - 20, pApp.height/2 - 5);
         }
 
-        currentState = GAMESTATE.MENU;
+        currentState = enums.GAMESTATE.GAMEPLAY;
     }
 
     void passDraw() {
@@ -65,11 +67,11 @@ public class StateManager {
 
     }
 
-    public void setGameState (GAMESTATE newState) {
+    public void setGameState (enums.GAMESTATE newState) {
         currentState = newState;
     }
 
-    public GAMESTATE getGameState () {
+    public enums.GAMESTATE getGameState () {
         return currentState;
     }
 
@@ -82,8 +84,13 @@ public class StateManager {
             mainMenu.setup();
             loadPercent = 10;
 
+            //initialise physics world
+            pApp.box2d.createWorld(new Vec2(0,0));
+            pApp.box2d.setScaleFactor(20);
+
             //load gameManager, don't need initial setup yet (server must connect first)
             gameManager = new GameManager(pApp);
+            gameManager.setup();
             loadPercent = 50;
 
             //load pauseMenu, don't need initial setup yet (player must start game first)
@@ -99,18 +106,11 @@ public class StateManager {
             client.setup();
             loadPercent = 100;
 
+            System.out.println("LoadThread finished processing");
+
             return;
         }
 
-    }
-
-
-    public enum GAMESTATE {
-        STARTUP,
-        MENU,
-        GAMEPLAY,
-        PAUSE,
-        LOADING;
     }
 
 }

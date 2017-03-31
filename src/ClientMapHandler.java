@@ -10,6 +10,8 @@ import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static org.jbox2d.common.MathUtils.PI;
+
 public class ClientMapHandler {
 
     ze_rebuild pApp;
@@ -17,6 +19,8 @@ public class ClientMapHandler {
     public ClientMapHandler(ze_rebuild parentApp) {
         pApp = parentApp;
 
+        //DEBUG METHOD CALL
+        testSetup();
     }
 
     //Gives entities a Unique ID number for serialization and save/load processes.
@@ -52,6 +56,19 @@ public class ClientMapHandler {
         sensorFilterTeam = teamFilter;
     }
 
+    public void testSetup() {
+        for (int i = 0; i < 100; i++) {
+            Vec2 newOrigin = new Vec2((float)Math.random() * pApp.width, (float)Math.random() * pApp.height);
+            newOrigin = pApp.box2d.coordPixelsToWorld(newOrigin);
+            float newAngle = 2 * PI * (float)Math.random();
+            float newWidth = (float)Math.random() * 4;
+            float newHeight = (float)Math.random() * 2;
+            enums.EntityType myType = enums.EntityType.FIXED;
+
+            entityFactory(newOrigin,newWidth,newHeight,newAngle,myType,uniqueIDCounter);
+        }
+    }
+
     GameEntity createEntityByMouse(Vec2 origin, Vec2 end, Vec2 objWidthSet, enums.EntityType type) {
         float midX = (origin.x + end.x) / 2;
         float midY = -(origin.y + end.y) / 2;
@@ -67,19 +84,23 @@ public class ClientMapHandler {
 
     GameEntity entityFactory(Vec2 center, float width, float height, float angle, enums.EntityType type, int newID) {
         GameEntity newEntity = null;
+        int[] colors = null;
         //if the current type is basic fixed block, just create standard GameEntity
         if (type == enums.EntityType.FIXED) {
             newEntity = new GameEntity(pApp);
+            colors = type.getColorForType(type);
         //if the current type is Actor, create an Actor as GameEntity
         } else if (type == enums.EntityType.ACTOR) {
             if (editorActorType != null && editorTeam != enums.Team.NONE) {
                 newEntity = new Actor(pApp);
                 ((Actor)newEntity).setActorProperties(editorTeam,editorActorType);
+                colors = editorTeam.getColorForTeam(editorTeam);
             }
         } else if (type == enums.EntityType.SENSOR) {
             if (sensorFilterTeam != enums.Team.NONE) {
                 newEntity = new Sensor(pApp);
                 ((Sensor)newEntity).setTeamFilter(sensorFilterTeam);
+                colors = type.getColorForType(type);
             }
         } else if (type == enums.EntityType.DOOR) {
             if (editorDoorOpenPos != null && editorDoorOpenSpeed > 0 && editorDoorCloseSpeed > 0) {
@@ -87,22 +108,36 @@ public class ClientMapHandler {
                 ((Door)newEntity).setDoorClosedPos(center);
                 ((Door)newEntity).setDoorOpenPos(editorDoorOpenPos);
                 ((Door)newEntity).setDoorSpeed(editorDoorOpenSpeed,editorDoorCloseSpeed);
+                colors = type.getColorForType(type);
             }
         } else if (type == enums.EntityType.GAME_LOGIC) {
             newEntity =  new GameLogic(pApp);
+            colors = type.getColorForType(type);
             //TODO: gamelogic constructors;
         } else if (type == enums.EntityType.MAP_ITEM) {
             if (editorItemType != null) {
                 newEntity = new MapItem(pApp);
                 ((MapItem) newEntity).setItemType(editorItemType);
+                colors = type.getColorForType(type);
             }
         }
+
+        //if object is actor controlled by client, override color.
+        if (newEntity instanceof Actor && newEntity.myID == pApp.stateManager.client.myPlayerID) {
+            colors = enums.Team.getColorForTeam(enums.Team.PLAYER);
+        }
+        if (colors == null) {
+            int[] nullColor = {0,0,0};
+            colors = nullColor;
+        }
+
         //if no object has been created for any reason, terminate early
         if (newEntity == null) {
             return null;
         }
         //set universal properties for each object created.
         newEntity.setCoreProperties(center,width,height,angle,type,newID);
+        newEntity.setColor(colors[0],colors[1],colors[2]);
         //build it's physics body and add to the physics world
         newEntity.makeBody();
         //add object to ID-keyed list of all game entities.
@@ -130,11 +165,6 @@ public class ClientMapHandler {
 
     GameEntity createEntityFromLoad(Vec2 origin, float wide, float tall, float angle, enums.EntityType type, int newID) {
         GameEntity newEntity = entityFactory(origin,wide,tall,angle,type,newID);
-        return newEntity;
-    }
-
-    GameEntity createEntityFromCopy(Vec2 origin, float wide, float tall, float angle, enums.EntityType type, int newID) {
-        GameEntity newEntity = entityFactory(origin, wide, tall, angle, type, newID);
         return newEntity;
     }
 

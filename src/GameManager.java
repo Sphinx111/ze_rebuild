@@ -15,23 +15,16 @@ public class GameManager {
 
     void setup() {
         mapHandler = new ClientMapHandler(pApp);
+        System.out.println(getClass().getName() + " - Started Successfully");
     }
 
     void update() {
+        mapHandler.update();
+        mapHandler.show();
+    }
+    public void receiveInput(boolean[] keysAndMouse) {
 
     }
 
-    public enum Team {
-        HUMAN,
-        ZOMBIE,
-        NONE;
-    }
-
-    public enum ActorType {
-        SOLDIER,
-        ZOMBIE,
-        BIG_ZOMBIE,
-        CIVILIAN;
-    }
 
 }

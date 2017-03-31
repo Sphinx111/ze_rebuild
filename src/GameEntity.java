@@ -7,6 +7,8 @@ import processing.core.PImage;
 import javax.swing.text.html.parser.Entity;
 import java.util.HashMap;
 
+import static processing.core.PConstants.CENTER;
+
 
 /**
  * Created by Eddy on 30/03/2017.
@@ -16,7 +18,7 @@ import java.util.HashMap;
 public class GameEntity {
     //parent class for Actors, Objects, Items etc with a presence in the gameworld.
 
-    ze_rebuild pApp;
+    transient ze_rebuild pApp;
 
     //Universal Fields
     enums.EntityType myType;
@@ -26,22 +28,23 @@ public class GameEntity {
     float worldHeight;
     float angle;
 
-    public GameEntity (ze_rebuild parentApp) {
+    public GameEntity(ze_rebuild parentApp) {
         pApp = parentApp;
     }
-    public GameEntity () {/* Stub constructor to satisfy java's compile requirements.*/}
+
+    public GameEntity() {/* Stub constructor to satisfy java's compile requirements.*/}
 
     //Physics fields (does not apply to decoration).
-    Body myBody;
-    Fixture myFix;
+    transient Body myBody;
+    transient Fixture myFix;
 
     //Drawing fields
-    PImage myImage;
-    int[] myColor;
-    float pixWidth; //doubles as radius for circular objects
-    float pixHeight;
+    transient PImage myImage;
+    transient int[] myColor = new int[3];
+    transient float pixWidth; //doubles as radius for circular objects
+    transient float pixHeight;
 
-    public void setCoreProperties (Vec2 pos, float width, float height, float angle, enums.EntityType type, int id) {
+    public void setCoreProperties(Vec2 pos, float width, float height, float angle, enums.EntityType type, int id) {
         myID = id;
         myType = type;
         this.angle = angle;
@@ -49,18 +52,24 @@ public class GameEntity {
         worldWidth = width;
         worldHeight = height;
         myType = type;
+        pixWidth = pApp.box2d.scalarPixelsToWorld(worldWidth);
+        pixHeight = pApp.box2d.scalarPixelsToWorld(worldHeight);
     }
+
     public void applyForce(Vec2 forceToApply) {
         myBody.applyForceToCenter(forceToApply);
     }
-    public void setPImage (PImage toUse) {
+
+    public void setPImage(PImage toUse) {
         myImage = toUse;
     }
+
     public void setColor(int red, int green, int blue) {
         myColor[0] = red;
         myColor[1] = green;
         myColor[2] = blue;
     }
+
     public void update() {
         //DO NOTHING for basic static objects. Other types will override.
     }
@@ -68,9 +77,9 @@ public class GameEntity {
     void makeBody() {
         // Define a polygon (this is what we use for a rectangle)
         PolygonShape sd = new PolygonShape();
-        float box2dw = pApp.box2d.scalarPixelsToWorld(worldWidth/2);
-        float box2dh = pApp.box2d.scalarPixelsToWorld(worldHeight /2);
-        sd.setAsBox(box2dw,box2dh);
+        float box2dw = worldWidth / 2;
+        float box2dh = worldHeight / 2;
+        sd.setAsBox(box2dw, box2dh);
 
         // Define a fixture
         FixtureDef fd = new FixtureDef();
@@ -79,7 +88,7 @@ public class GameEntity {
         fd.density = 1;
         fd.friction = 0;
         fd.restitution = 0.05f;
-        if (myType == enums.EntityType.SENSOR || myType == enums.EntityType.GAME_LOGIC || myType == enums.EntityType.MAP_ITEM ) {
+        if (myType == enums.EntityType.SENSOR || myType == enums.EntityType.GAME_LOGIC || myType == enums.EntityType.MAP_ITEM) {
             fd.isSensor = true;
         }
 
@@ -105,8 +114,23 @@ public class GameEntity {
     }
 
     void show() {
-        //TODO: Make this do something please.
         //subclasses shouldn't need to override this method if done properly.
+
+        Vec2 pixPos = pApp.box2d.getBodyPixelCoord(myBody);
+        float pixWidth = pApp.box2d.scalarWorldToPixels(worldWidth);
+        float pixHeight = pApp.box2d.scalarWorldToPixels(worldHeight);
+        float angle = myBody.getAngle();
+
+        pApp.rectMode(CENTER);
+        pApp.pushMatrix();
+        pApp.translate(pixPos.x, pixPos.y);
+        pApp.rotate(-angle);
+        pApp.fill(myColor[0], myColor[1], myColor[2]);
+        pApp.stroke(0);
+        pApp.strokeWeight(1);
+        pApp.rect(0, 0, pixWidth, pixHeight);
+        pApp.popMatrix();
+
     }
 
 }

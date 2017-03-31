@@ -10,9 +10,11 @@ public class MainMenu {
     }
 
     void setup() {
+        System.out.println(getClass().getName() + " - Started Successfully");
+    }
+    void receiveMouseClick() {
 
     }
-
     void update() {
 
     }

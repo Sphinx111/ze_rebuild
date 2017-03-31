@@ -14,6 +14,29 @@ public class enums {
         ACTOR,
         DECORATION;
 
+        public static int[] FIXED_COLOR = {100,100,100};
+        public static int[] SENSOR_COLOR = {220,30,30};
+        public static int[] DOOR_COLOR = {70,70,70};
+        public static int[] GAMELOGIC_COLOR = {50,50,180};
+        public static int[] MAPITEM_COLOR = {180,25,25};
+
+        public static int[] getColorForType(EntityType test) {
+            if (test == FIXED || test == DECORATION) {
+                return FIXED_COLOR;
+            } else if (test == SENSOR) {
+                return SENSOR_COLOR;
+            } else if (test == DOOR) {
+                return DOOR_COLOR;
+            } else if (test == GAME_LOGIC) {
+                return GAMELOGIC_COLOR;
+            } else if (test == MAP_ITEM) {
+                return MAPITEM_COLOR;
+            } else {
+                int[] nullColor = {0,0,0};
+                return nullColor;
+            }
+        }
+
         public static String getStringFromType(EntityType testType) {
             if (testType == EntityType.FIXED) {
                 return "FIXED";
@@ -86,12 +109,27 @@ public class enums {
     }
 
     public enum Team {
-        HUMAN, ZOMBIE, NEUTRAL, NONE;
+        HUMAN, ZOMBIE, NEUTRAL, PLAYER, NONE;
 
-        int[] HUMAN_COLOR = {100, 100, 200};
-        int[] ZOMBIE_COLOR = {100, 200, 100};
-        int[] NEUTRAL_COLOR = {150, 150, 150};
+        static int[] HUMAN_COLOR = {100, 100, 200};
+        static int[] ZOMBIE_COLOR = {100, 200, 100};
+        static int[] NEUTRAL_COLOR = {150, 150, 150};
+        static int[] PLAYER_COLOR = {80,80,220};
 
+        public static int[] getColorForTeam(Team testTeam) {
+            if (testTeam == HUMAN) {
+                return HUMAN_COLOR;
+            } else if (testTeam == ZOMBIE) {
+                return ZOMBIE_COLOR;
+            } else if (testTeam == NEUTRAL) {
+                return NEUTRAL_COLOR;
+            } else if (testTeam == PLAYER) {
+                return PLAYER_COLOR;
+            } else {
+                int[] nullColor = {0,0,0};
+                return nullColor;
+            }
+        }
     }
 
     public enum ActorType {
@@ -263,4 +301,13 @@ public class enums {
         APPLY_DAMAGE,
         MOVE_ENTITIES;
     }
+
+    public enum GAMESTATE {
+        STARTUP,
+        MENU,
+        GAMEPLAY,
+        PAUSE,
+        LOADING;
+    }
+
 }
