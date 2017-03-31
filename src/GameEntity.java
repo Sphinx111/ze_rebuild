@@ -50,7 +50,9 @@ public class GameEntity {
         worldHeight = height;
         myType = type;
     }
-
+    public void applyForce(Vec2 forceToApply) {
+        myBody.applyForceToCenter(forceToApply);
+    }
     public void setPImage (PImage toUse) {
         myImage = toUse;
     }
@@ -58,7 +60,10 @@ public class GameEntity {
         myColor[0] = red;
         myColor[1] = green;
         myColor[2] = blue;
-     }
+    }
+    public void update() {
+        //DO NOTHING for basic static objects. Other types will override.
+    }
 
     void makeBody() {
         // Define a polygon (this is what we use for a rectangle)
@@ -74,6 +79,9 @@ public class GameEntity {
         fd.density = 1;
         fd.friction = 0;
         fd.restitution = 0.05f;
+        if (myType == enums.EntityType.SENSOR || myType == enums.EntityType.GAME_LOGIC || myType == enums.EntityType.MAP_ITEM ) {
+            fd.isSensor = true;
+        }
 
         // Define the body and make it from the shape
         BodyDef bd = new BodyDef();
@@ -94,6 +102,11 @@ public class GameEntity {
         myFix = myBody.createFixture(fd);
         myBody.setUserData(this);
         myFix.setUserData(this);
+    }
+
+    void show() {
+        //TODO: Make this do something please.
+        //subclasses shouldn't need to override this method if done properly.
     }
 
 }

@@ -30,7 +30,29 @@ public class ClientMapHandler {
     BufferedReader readToLoad;
     String name = "testMap";
 
-    GameEntity createMapObjectByMouse(Vec2 origin, Vec2 end, Vec2 objWidthSet, enums.EntityType type) {
+    //helper variables - Editor
+    enums.Team editorTeam = enums.Team.NONE;
+    enums.ActorType editorActorType;
+    enums.Team sensorFilterTeam = enums.Team.NONE;
+    enums.ItemType editorItemType;
+    Vec2 editorDoorOpenPos;
+    int editorDoorOpenSpeed = -1;
+    int editorDoorCloseSpeed = -1;
+
+    public void setActorSettings(enums.Team currentTeam, enums.ActorType currentType) {
+        editorTeam = currentTeam;
+        editorActorType = currentType;
+    }
+    public void setDoorSettings (Vec2 newDoorOpenPos,int openSpeed, int closeSpeed) {
+        editorDoorOpenPos = newDoorOpenPos;
+        editorDoorOpenSpeed = openSpeed;
+        editorDoorCloseSpeed = closeSpeed;
+    }
+    public void setSensorSettings (enums.Team teamFilter) {
+        sensorFilterTeam = teamFilter;
+    }
+
+    GameEntity createEntityByMouse(Vec2 origin, Vec2 end, Vec2 objWidthSet, enums.EntityType type) {
         float midX = (origin.x + end.x) / 2;
         float midY = -(origin.y + end.y) / 2;
         Vec2 midPoint = new Vec2(midX, midY);
@@ -43,83 +65,93 @@ public class ClientMapHandler {
         return newEntity;
     }
 
-    GameEntity entityFactory(Vec2 center, float width, float height, float angle, EntityType type, int newID) {
-
-
-
-        uniqueIDCounter+=1;
+    GameEntity entityFactory(Vec2 center, float width, float height, float angle, enums.EntityType type, int newID) {
+        GameEntity newEntity = null;
+        //if the current type is basic fixed block, just create standard GameEntity
+        if (type == enums.EntityType.FIXED) {
+            newEntity = new GameEntity(pApp);
+        //if the current type is Actor, create an Actor as GameEntity
+        } else if (type == enums.EntityType.ACTOR) {
+            if (editorActorType != null && editorTeam != enums.Team.NONE) {
+                newEntity = new Actor(pApp);
+                ((Actor)newEntity).setActorProperties(editorTeam,editorActorType);
+            }
+        } else if (type == enums.EntityType.SENSOR) {
+            if (sensorFilterTeam != enums.Team.NONE) {
+                newEntity = new Sensor(pApp);
+                ((Sensor)newEntity).setTeamFilter(sensorFilterTeam);
+            }
+        } else if (type == enums.EntityType.DOOR) {
+            if (editorDoorOpenPos != null && editorDoorOpenSpeed > 0 && editorDoorCloseSpeed > 0) {
+                newEntity = new Door(pApp);
+                ((Door)newEntity).setDoorClosedPos(center);
+                ((Door)newEntity).setDoorOpenPos(editorDoorOpenPos);
+                ((Door)newEntity).setDoorSpeed(editorDoorOpenSpeed,editorDoorCloseSpeed);
+            }
+        } else if (type == enums.EntityType.GAME_LOGIC) {
+            newEntity =  new GameLogic(pApp);
+            //TODO: gamelogic constructors;
+        } else if (type == enums.EntityType.MAP_ITEM) {
+            if (editorItemType != null) {
+                newEntity = new MapItem(pApp);
+                ((MapItem) newEntity).setItemType(editorItemType);
+            }
+        }
+        //if no object has been created for any reason, terminate early
+        if (newEntity == null) {
+            return null;
+        }
+        //set universal properties for each object created.
+        newEntity.setCoreProperties(center,width,height,angle,type,newID);
+        //build it's physics body and add to the physics world
+        newEntity.makeBody();
+        //add object to ID-keyed list of all game entities.
+        allObjects.put(newID,newEntity);
+        //increment uniqueIDcounter (useful if building a level up from scratch)
+        uniqueIDCounter++;
+        //return the new Entity in case the Factory method is being used for anything later.
+        return newEntity;
     }
 
-    MapObject createItemByMouse(Vec2 origin, ItemType item) {
-        float myWidth = box2d.scalarPixelsToWorld(item.RIFLE_LENGTH);
-        float myHeight = box2d.scalarPixelsToWorld(item.RIFLE_WIDTH);
-        MapObject newItem = new MapObject(origin, myWidth, myHeight, 0, item, uniqueIDCounter);
-        allObjects.add(newItem);
-        uniqueIDCounter += 1;
-        return newItem;
-    }
-
-    void objectUpdated(MapObject iChanged) {
-        objectsUpdated.add((Object) iChanged);
-    }
-
-    void objectUpdated(Actor iChanged) {
-        objectsUpdated.add((Object) iChanged);
-    }
-
-    MapObject createItemFromLoad(Vec2 origin, float wide, float tall, float angle, ItemType type, int newID) {
-        MapObject newItem = new MapObject(origin, wide, tall, angle, type, newID);
-        allObjects.add(newItem);
-        return newItem;
-    }
-
-    void createActorByMouse(Vec2 origin, Team team, Type type) {
-
-    }
-
-    void createActorFromLoad(Vec2 origin, Team team, Type type) {
-
-    }
-
-    void removeObject(MapObject toRemove) {
+    void removeObject(int toRemove) {
         if (!objectsToRemove.contains(toRemove)) {
             objectsToRemove.add(toRemove);
         }
     }
 
     void cleanup() {
-        for (MapObject m : objectsToRemove) {
-            box2d.world.destroyBody(m.body);
-            allObjects.remove(m);
+        for (int keyV : objectsToRemove) {
+            GameEntity g = allObjects.get(keyV);
+            pApp.box2d.world.destroyBody(g.myBody);
+            allObjects.remove(keyV);
         }
         objectsToRemove.clear();
     }
 
-    MapObject createMapObjectFromLoad(Vec2 origin, float wide, float tall, float angle, BlockType type, int newID) {
-        Vec2 alteredPos = new Vec2(origin.x, origin.y);
-        MapObject newObject = new MapObject(alteredPos, wide, tall, angle, type, newID);
-        allObjects.add(newObject);
-        return newObject;
+    GameEntity createEntityFromLoad(Vec2 origin, float wide, float tall, float angle, enums.EntityType type, int newID) {
+        GameEntity newEntity = entityFactory(origin,wide,tall,angle,type,newID);
+        return newEntity;
     }
 
-    MapObject createMapObjectFromCopy(Vec2 origin, float wide, float tall, float angle, BlockType type, int newID) {
-        MapObject newObject = new MapObject(origin, wide, tall, angle, type, newID);
-        allObjects.add(newObject);
-        return newObject;
+    GameEntity createEntityFromCopy(Vec2 origin, float wide, float tall, float angle, enums.EntityType type, int newID) {
+        GameEntity newEntity = entityFactory(origin, wide, tall, angle, type, newID);
+        return newEntity;
     }
 
     void update() {
-        for (MapObject m : allObjects) {
-            m.update();
+        for (GameEntity g : allObjects.values()) {
+            g.update();
         }
     }
 
     void show() {
-        for (MapObject m : allObjects) {
-            m.show();
+        for (GameEntity g : allObjects.values()) {
+            g.show();
         }
     }
 
+    /*
+       //THIS METHOD WILL BE REPLACED WITH SERIALIZATION OF OBJECTS.
     void saveMap() {
         boolean saveReady = false;
         try {
@@ -130,36 +162,34 @@ public class ClientMapHandler {
             saveReady = false;
         }
         if (saveReady) {
-            for (MapObject m : allObjects) {
+            for (GameEntity g : allObjects.values()) {
                 //close all doors
-                if (m.myType == BlockType.DOOR) {
-                    m.body.setTransform(m.doorClosedPos, m.body.getAngle());
+                if (g.myType == enums.EntityType.DOOR) {
+                    g.myBody.setTransform(((Door)g).doorClosedPos, g.myBody.getAngle());
                 }
                 //prepare stringbuilder for saving a line of data.
                 StringBuilder newline = new StringBuilder();
                 //get string of blockType for first piece of data
                 String typeString;
-                if (m.myType != BlockType.ITEM) {
-                    typeString = BlockType.getStringFromType(m.myType) + ",";
+                if (g.myType != enums.EntityType.MAP_ITEM) {
+                    typeString = enums.EntityType.getStringFromType(g.myType) + ",";
                 } else {
-                    typeString = ItemType.getStringFromItem(m.myItemType) + ",";
+                    typeString = enums.ItemType.getStringFromItem(((MapItem)g).myItemType) + ",";
                 }
                 newline.append(typeString);
 
-                int saveID = m.myID;
+                int saveID = g.myID;
                 newline.append(saveID + ",");
-                Vec2 savePos = m.body.getPosition();
+                Vec2 savePos = g.myBody.getPosition();
                 newline.append(savePos.x + "," + savePos.y);
-                float saveAngle = m.body.getAngle();
+                float saveAngle = g.myBody.getAngle();
                 newline.append("," + saveAngle);
-                float xVal = box2d.scalarPixelsToWorld(m.pixWidth);
+                float xVal = g.worldWidth;
                 newline.append("," + xVal);
-                float yVal = box2d.scalarPixelsToWorld(m.pixHeight);
+                float yVal = g.worldHeight;
                 newline.append("," + yVal);
-                int linkedID = m.linkedDoorID;
-                newline.append("," + linkedID);
-                if (m.doorOpenPos != null) {
-                    Vec2 doorOpenPos = m.doorOpenPos;
+                if (((Door)g).doorOpenPos != null) {
+                    Vec2 doorOpenPos = ((Door)g).doorOpenPos;
                     newline.append("," + doorOpenPos.x + "," + doorOpenPos.y);
                 }
 
@@ -177,7 +207,10 @@ public class ClientMapHandler {
         }
         return null;
     }
+    */
 
+    /*
+        FROM HERE, METHOD WILL BE REPLACED WITH SERIALIZATION
     void loadMap(String mapName) {
         String inputData = "";
         String[] inputLines;
@@ -194,10 +227,10 @@ public class ClientMapHandler {
             int highestLoadID = 0; //var tracks highest ID loaded in, so mapHandler can continue adding ID's from new highest value.
             allObjects.clear(); //delete all existing map objects when loading new map.
             ArrayList<MapObject> sensorsNeedingLinks = new ArrayList<MapObject>();
-            fill(255);
-            rect(width / 2 - 100, 50, 200, 50);
-            fill(0);
-            text("Loading Map", width / 2 - 75, 40);
+            pApp.fill(255);
+            pApp.rect(pApp.width / 2 - 100, 50, 200, 50);
+            pApp.fill(0);
+            pApp.text("Loading Map", pApp.width / 2 - 75, 40);
             try {
                 //get data from file and store in memory quickly.
                 StringBuilder sb = new StringBuilder();
@@ -218,14 +251,14 @@ public class ClientMapHandler {
             try {
                 for (int i = 0; i < inputLines.length; i++) {
                     String[] dataPieces = inputLines[i].split(",");
-                    BlockType loadType = null;
-                    ItemType loadItem = null;
+                    enums.EntityType loadType = null;
+                    enums.ItemType loadItem = null;
                     int loadMode = 0;
                     if (dataPieces[0].contains("ITEM")) {
-                        loadItem = ItemType.getTypeFromString(dataPieces[0]);
+                        loadItem = enums.ItemType.getTypeFromString(dataPieces[0]);
                         loadMode = 1;
                     } else {
-                        loadType = BlockType.getTypeFromString(dataPieces[0]);
+                        loadType = enums.EntityType.getTypeFromString(dataPieces[0]);
                         loadMode = 2;
                     }
                     int newID = Integer.parseInt(dataPieces[1]);
@@ -235,23 +268,18 @@ public class ClientMapHandler {
                     Vec2 newPos = new Vec2(x, y);
                     float wide = Float.parseFloat(dataPieces[5]);
                     float tall = Float.parseFloat(dataPieces[6]);
-                    int linkedID = Integer.parseInt(dataPieces[7]);
                     MapObject newMapObject = null;
                     if (loadMode == 1) {
-                        newMapObject = createItemFromLoad(newPos, wide, tall, angle, loadItem, newID);
+                        newMapObject = createEntityFromLoad(newPos, wide, tall, angle, loadItem, newID);
                     } else {
                         newMapObject = createMapObjectFromLoad(newPos, wide, tall, angle, loadType, newID);
                     }
                     if (newID > highestLoadID) {
                         highestLoadID = newID;
                     }
-                    if (loadType == BlockType.SENSOR && linkedID != -1) {
-                        newMapObject.linkedDoorID = linkedID;
-                        sensorsNeedingLinks.add(newMapObject);
-                    }
                     if (dataPieces.length >= 10) {
-                        float xOpen = Float.parseFloat(dataPieces[8]);
-                        float yOpen = Float.parseFloat(dataPieces[9]);
+                        float xOpen = Float.parseFloat(dataPieces[7]);
+                        float yOpen = Float.parseFloat(dataPieces[8]);
                         Vec2 openPos = new Vec2(xOpen, yOpen);
                         openPos = new Vec2(openPos.x, openPos.y);
                         newMapObject.doorOpenPos = openPos;
@@ -269,5 +297,6 @@ public class ClientMapHandler {
             sensorsNeedingLinks.clear();
         }
     }
+    */
 
 }

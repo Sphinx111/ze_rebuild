@@ -30,7 +30,9 @@ public class Door extends GameEntity {
     }
     public void setDoorOpenPos(Vec2 doorOpenPos) {
         this.doorOpenPos = doorOpenPos;
-        this.doorClosedPos = worldPos;
+    }
+    public void setDoorClosedPos(Vec2 doorClosedPos) {
+        this.doorClosedPos = doorClosedPos;
     }
     public void setSignalOutConditions(boolean openSig, boolean closeSig) {
         sendSignalOnOpen = openSig;

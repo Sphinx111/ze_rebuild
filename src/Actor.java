@@ -1,3 +1,5 @@
+import org.jbox2d.common.Vec2;
+
 /**
  * Created by Celeron on 3/30/2017.
  */
@@ -41,6 +43,10 @@ public class Actor extends GameEntity {
     public void addWeapon(enums.WeaponType newWeapon) {
         myWeapon = new Weapon(pApp);
         myWeapon.setType(enums.WeaponType.RIFLE);
+    }
+    public void wasHit(Vec2 forceToApply,float damage) {
+        health -= damage;
+        applyForce(forceToApply);
     }
 
 }
