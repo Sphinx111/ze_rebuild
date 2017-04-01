@@ -14,18 +14,18 @@ public class FastMath {
 
     // call FastMath.initRand(playerID) before using FastMath.rand256()
     //initRange() sets the startIndex at position unique to each player's ID, ensuring different players will get different random numbers each frame
-    private static int randIndex = -1;
-    private static int randStartIndex = -1;
+    private static int randIndex = 0;
+    private static int randStartIndex = 500;
 
-    public static void initRand(int seedID, ze_rebuild parentApp) {
-        randStartIndex = Math.abs(seedID * 10289) % lookupRand256Length;
+    public static void initRand(ze_rebuild parentApp) {
+        pApp = parentApp;
     }
 
     // faster version of (int)(256 * Math.random())
     // costs ~10 bytecodes
     // calling for any given ID + frameCount will return same random value.
-    public static int rand256() {
-        randIndex = randStartIndex + (pApp.frameCount % lookupRand256Length);
+    public static int rand256(int seedID) {
+        randIndex = (randStartIndex + (seedID * 5 + pApp.frameCount)) % lookupRand256Length;
         return lookupRand256.charAt(randIndex);
     }
 }

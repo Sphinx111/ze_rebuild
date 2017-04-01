@@ -18,7 +18,9 @@ public class ClientMapHandler {
 
     public ClientMapHandler(ze_rebuild parentApp) {
         pApp = parentApp;
+    }
 
+    public void setup() {
         //DEBUG METHOD CALL
         testSetup();
     }
@@ -56,18 +58,46 @@ public class ClientMapHandler {
         sensorFilterTeam = teamFilter;
     }
 
+    public void applyInputToActor(Vec2 direction, boolean[] mouseButtons, float angleToFace, int ID) {
+        //check the desired Actor exists.
+        System.out.println(getClass().getName() + ">>> Checking for actor with ID: " + ID);
+        if (allObjects.containsKey(ID) && allObjects.get(ID) instanceof Actor) {
+            System.out.println(getClass().getName() + ">>> Desired Actor exists, applying input now...");
+            Actor actor = (Actor)allObjects.get(ID);
+            actor.move(direction);
+            actor.setFacing(angleToFace);
+            if (mouseButtons[0]) {
+                actor.shoot();
+            }
+        }
+    }
+
+    //simple test of entityFactory and entity show() methods.
     public void testSetup() {
-        for (int i = 0; i < 100; i++) {
+        System.out.println(getClass().getName() + ">>> Started testSetup method");
+        for (int i = 0; i < 30; i++) {
             Vec2 newOrigin = new Vec2((float)Math.random() * pApp.width, (float)Math.random() * pApp.height);
             newOrigin = pApp.box2d.coordPixelsToWorld(newOrigin);
             float newAngle = 2 * PI * (float)Math.random();
             float newWidth = (float)Math.random() * 4;
             float newHeight = (float)Math.random() * 2;
-            enums.EntityType myType = enums.EntityType.FIXED;
+            enums.EntityType myType = null;
+            if (i < 29) {
+                myType = enums.EntityType.FIXED;
+            } else {
+                newWidth = 2;
+                newHeight = 2;
+                myType = enums.EntityType.ACTOR;
+                pApp.stateManager.client.myPlayerID = uniqueIDCounter;
+                editorTeam = enums.Team.HUMAN;
+                editorActorType = enums.ActorType.SOLDIER;
+            }
 
             entityFactory(newOrigin,newWidth,newHeight,newAngle,myType,uniqueIDCounter);
         }
+        System.out.println(getClass().getName() + ">>> Finished testSetup method");
     }
+
 
     GameEntity createEntityByMouse(Vec2 origin, Vec2 end, Vec2 objWidthSet, enums.EntityType type) {
         float midX = (origin.x + end.x) / 2;
@@ -84,23 +114,23 @@ public class ClientMapHandler {
 
     GameEntity entityFactory(Vec2 center, float width, float height, float angle, enums.EntityType type, int newID) {
         GameEntity newEntity = null;
-        int[] colors = null;
+        int[] colors = {0,0,0};
         //if the current type is basic fixed block, just create standard GameEntity
         if (type == enums.EntityType.FIXED) {
             newEntity = new GameEntity(pApp);
-            colors = type.getColorForType(type);
+            colors = enums.EntityType.getColorForType(type);
         //if the current type is Actor, create an Actor as GameEntity
         } else if (type == enums.EntityType.ACTOR) {
             if (editorActorType != null && editorTeam != enums.Team.NONE) {
                 newEntity = new Actor(pApp);
                 ((Actor)newEntity).setActorProperties(editorTeam,editorActorType);
-                colors = editorTeam.getColorForTeam(editorTeam);
+                colors = enums.Team.getColorForTeam(editorTeam);
             }
         } else if (type == enums.EntityType.SENSOR) {
             if (sensorFilterTeam != enums.Team.NONE) {
                 newEntity = new Sensor(pApp);
                 ((Sensor)newEntity).setTeamFilter(sensorFilterTeam);
-                colors = type.getColorForType(type);
+                colors = enums.EntityType.getColorForType(type);
             }
         } else if (type == enums.EntityType.DOOR) {
             if (editorDoorOpenPos != null && editorDoorOpenSpeed > 0 && editorDoorCloseSpeed > 0) {
@@ -108,27 +138,23 @@ public class ClientMapHandler {
                 ((Door)newEntity).setDoorClosedPos(center);
                 ((Door)newEntity).setDoorOpenPos(editorDoorOpenPos);
                 ((Door)newEntity).setDoorSpeed(editorDoorOpenSpeed,editorDoorCloseSpeed);
-                colors = type.getColorForType(type);
+                colors = enums.EntityType.getColorForType(type);
             }
         } else if (type == enums.EntityType.GAME_LOGIC) {
             newEntity =  new GameLogic(pApp);
-            colors = type.getColorForType(type);
+            colors = enums.EntityType.getColorForType(type);
             //TODO: gamelogic constructors;
         } else if (type == enums.EntityType.MAP_ITEM) {
             if (editorItemType != null) {
                 newEntity = new MapItem(pApp);
                 ((MapItem) newEntity).setItemType(editorItemType);
-                colors = type.getColorForType(type);
+                colors = enums.EntityType.getColorForType(type);
             }
         }
 
         //if object is actor controlled by client, override color.
         if (newEntity instanceof Actor && newEntity.myID == pApp.stateManager.client.myPlayerID) {
             colors = enums.Team.getColorForTeam(enums.Team.PLAYER);
-        }
-        if (colors == null) {
-            int[] nullColor = {0,0,0};
-            colors = nullColor;
         }
 
         //if no object has been created for any reason, terminate early

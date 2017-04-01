@@ -1,3 +1,5 @@
+import org.jbox2d.common.Vec2;
+
 /**
  * Created by Celeron on 3/31/2017.
  */
@@ -23,12 +25,44 @@ public class InputHandler {
         System.out.println(getClass().getName() + " - Started Successfully");
         //setup variables/control schemes here.
     }
-
     public void update() {
         enums.GAMESTATE currentState = pApp.stateManager.getGameState();
 
-        if (currentState == enums.GAMESTATE.GAMEPLAY) {
-            pApp.stateManager.gameManager.receiveInput(keys);
+        int localID = pApp.stateManager.client.myPlayerID;
+        //if there's a game running, and the client has been assigned a player ID, send the current inputs
+        if (currentState == enums.GAMESTATE.GAMEPLAY && localID != -1) {
+            System.out.println(getClass().getName() + ">>> game is running and player exists, getting input");
+            float vertical1 = 0;
+            float vertical2 = 0;
+            if (keys[0]) {vertical1 = 1;}
+            if (keys[2]) {vertical2 = -1;}
+            float verticalSum = vertical1 + vertical2;
+            float horizontal1 = 0;
+            float horizontal2 = 0;
+            if (keys[1]) {horizontal1 = -1;}
+            if (keys[3]) {horizontal2 = 1;}
+            float horizontalSum = horizontal1 + horizontal2;
+            Vec2 directionOfInput = new Vec2(horizontalSum,verticalSum);
+            boolean[] mouseButtons = {keys[6],keys[7]};
+
+            float newAngle = getAngleInstructions(localID);
+            pApp.stateManager.gameManager.receiveInput(directionOfInput,mouseButtons, newAngle, localID);
+        }
+    }
+
+    //returns angle from player to the current mouse location
+    public float getAngleInstructions(int playerID) {
+        Camera mainCamera = pApp.stateManager.gameManager.mainCamera;
+        Vec2 mouseWorldPos = pApp.box2d.coordPixelsToWorld(pApp.mouseX - mainCamera.xOff,pApp.mouseY - mainCamera.yOff);
+        ClientMapHandler activeMapHandler = pApp.stateManager.gameManager.mapHandler;
+        if (activeMapHandler.allObjects.containsKey(playerID)) {
+            Vec2 playerWorldPos = activeMapHandler.allObjects.get(playerID).myBody.getWorldCenter();
+            Vec2 vectorToMouse = mouseWorldPos.add(playerWorldPos.negate());
+            float newAngle = (float)Math.atan2(vectorToMouse.y,vectorToMouse.x);
+            return newAngle;
+        } else {
+            System.out.println(getClass().getName() + ">>> Did not find player with ID: " + playerID + " to calculate angle for");
+            return 0;
         }
     }
 
@@ -52,6 +86,12 @@ public class InputHandler {
             }
         } else if (pApp.keyCode == pApp.SHIFT) {
             keys[5] = true;
+        } else if (pApp.key == 'M' || pApp.key == 'm') {
+            if (!keys[8]) {
+                keys[8] = true;
+            } else {
+                keys[8] = false;
+            }
         }
 
 

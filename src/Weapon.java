@@ -64,6 +64,10 @@ public class Weapon {
     public void checkReloadState() {
         if (reloadCountdown == -1) {
             //do nothing if the weapon is not currently reloading, counter stays at -1
+            //unless weapon is out of bullets, then automatically reaload:
+            if (roundsInMagazine == 0) {
+                reload();
+            }
             return;
         } else {
             //if the weapon has finished reloading, fill the magazine back up.
@@ -76,10 +80,8 @@ public class Weapon {
         }
     }
     public void reload() {
-        if (roundsInMagazine > 0) {
             reloadCountdown = reloadDelay;
             roundsInMagazine = 0;
-        }
     }
     public boolean canShoot() {
         //if there are rounds in the magazine, and firedelay has passed...
@@ -90,57 +92,60 @@ public class Weapon {
         }
     }
     public void shoot(float angle) {
-        //update helper variables.
-        timeLastFired = pApp.frameCount;
-        roundsInMagazine -= 1;
 
-        Actor firer = holdingActor;
-        //define a line for the raycast check.
-        //apply random bullet spread to firing angle, use FastMath with frameCount seed to get same offset on server and client for any given tick
-        float randomOffset = FastMath.rand256()/256 * spread;
-        Vec2 origin = firer.myBody.getWorldCenter();
-        Vec2 endPoint = new Vec2(origin.x + (range * (float)Math.cos(angle)), origin.y + (range * (float)Math.sin(angle)));
-        //send out a raycast which will be caught by the raycast callback.
-        pApp.box2d.world.raycast(weaponCallback,origin,endPoint);
+        if (canShoot()) {
+            //update helper variables.
+            timeLastFired = pApp.frameCount;
+            roundsInMagazine -= 1;
 
-        //tell mainCamera to apply screenshake
-        int screenShakeAmt = getScreenShake(firer);
-        //TODO: send screenShake instructions to camera
-        //pApp.mainCamera.addScreenShake(screenShakeAmt);
+            Actor firer = holdingActor;
+            //define a line for the raycast check.
+            //apply random bullet spread to firing angle, use FastMath with frameCount seed to get same offset on server and client for any given tick
+            float randomOffset = FastMath.rand256(firer.myID) / 256 * spread;
+            Vec2 origin = firer.myBody.getWorldCenter();
+            Vec2 endPoint = new Vec2(origin.x + (range * (float) Math.cos(angle)), origin.y + (range * (float) Math.sin(angle)));
+            //send out a raycast which will be caught by the raycast callback.
+            pApp.box2d.world.raycast(weaponCallback, origin, endPoint);
 
-        //TODO: add sound here
+            //tell mainCamera to apply screenshake
+            int screenShakeAmt = getScreenShake(firer);
+            //TODO: send screenShake instructions to camera
+            //pApp.mainCamera.addScreenShake(screenShakeAmt);
 
-        //TODO: draw better firing line
-        //draw line to the point hit
-        pApp.strokeWeight(2);
-        pApp.stroke(250,30,30);
-        if (weaponCallback.closestPointHit != null) {
-            Vec2 bulletEnd = pApp.box2d.coordWorldToPixels(weaponCallback.closestPointHit);
-            Vec2 drawOrigin = pApp.box2d.coordWorldToPixels(origin);
-            pApp.line(drawOrigin.x,drawOrigin.y,bulletEnd.x,bulletEnd.y);
-            pApp.strokeWeight(15);
-            pApp.stroke(250,50,0);
-            pApp.point(bulletEnd.x,bulletEnd.y);
-        } else {
-            Vec2 drawOrigin = pApp.box2d.coordWorldToPixels(origin);
-            Vec2 endPointPixels = pApp.box2d.coordWorldToPixels(endPoint);
-            pApp.line(drawOrigin.x,drawOrigin.y,endPointPixels.x,endPointPixels.y);
+            //TODO: add sound here
+
+            //TODO: draw better firing line
+            //draw line to the point hit
+            pApp.strokeWeight(2);
+            pApp.stroke(250, 30, 30);
+            if (weaponCallback.closestPointHit != null) {
+                Vec2 bulletEnd = pApp.box2d.coordWorldToPixels(weaponCallback.closestPointHit);
+                Vec2 drawOrigin = pApp.box2d.coordWorldToPixels(origin);
+                pApp.line(drawOrigin.x, drawOrigin.y, bulletEnd.x, bulletEnd.y);
+                pApp.strokeWeight(15);
+                pApp.stroke(250, 50, 0);
+                pApp.point(bulletEnd.x, bulletEnd.y);
+            } else {
+                Vec2 drawOrigin = pApp.box2d.coordWorldToPixels(origin);
+                Vec2 endPointPixels = pApp.box2d.coordWorldToPixels(endPoint);
+                pApp.line(drawOrigin.x, drawOrigin.y, endPointPixels.x, endPointPixels.y);
+            }
+
+            //Get object collision info from weaponCallback.
+            //if the raycast's nearest hit object is an actor (necessarily not null), apply force and damage.
+            if (weaponCallback.closestObjectHit instanceof Actor) {
+                Actor actorHit = (Actor) weaponCallback.closestObjectHit;
+                Vec2 vecToTarget = actorHit.myBody.getWorldCenter().add(origin.negate());
+                //get direction of shot without magniture.
+                vecToTarget.normalize();
+                //multiply direction by the pushback value to get force.
+                Vec2 forceToApply = vecToTarget.mul(pushback);
+
+                actorHit.wasHit(forceToApply, damage);
+            }
+            //firing cycle has finished, cleanup the weaponCallback results.
+            weaponCallback.cleanup();
         }
-
-        //Get object collision info from weaponCallback.
-        //if the raycast's nearest hit object is an actor (necessarily not null), apply force and damage.
-        if (weaponCallback.closestObjectHit instanceof Actor) {
-            Actor actorHit = (Actor)weaponCallback.closestObjectHit;
-            Vec2 vecToTarget = actorHit.myBody.getWorldCenter().add(origin.negate());
-            //get direction of shot without magniture.
-            vecToTarget.normalize();
-            //multiply direction by the pushback value to get force.
-            Vec2 forceToApply = vecToTarget.mul(pushback);
-
-            actorHit.wasHit(forceToApply,damage);
-        }
-        //firing cycle has finished, cleanup the weaponCallback results.
-        weaponCallback.cleanup();
     }
     public int getScreenShake(Actor firer) {
         int newAmount = 0;
@@ -165,7 +170,7 @@ public class Weapon {
         fireSound = sounds[0];
         reloadSound = sounds[1];
         emptySound = sounds[2];
-        hitSound = sounds[4];
+        hitSound = sounds[3];
         String[] graphics = newType.getGraphics(newType);
         myShape = graphics[0];
         myTexture = graphics[1];

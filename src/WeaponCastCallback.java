@@ -8,12 +8,13 @@ import org.jbox2d.dynamics.Fixture;
 public class WeaponCastCallback implements RayCastCallback{
 
     Vec2 closestPointHit;
-    float closestFraction = 1;
+    float closestFraction = 1.01f;
     Object closestObjectHit;
 
     enums.Team filterOutTeam = enums.Team.NONE;
 
     public float reportFixture(Fixture hitFix, Vec2 pointHit, Vec2 normalHit, float fraction) {
+        //if this report is closer to firer than any other report, process it's data, otherwise ignore it.
         if (fraction < closestFraction) {
             Object hitObj = hitFix.getUserData();
             //if the object hit is an actor, check if their team is being filtered out.
@@ -22,6 +23,7 @@ public class WeaponCastCallback implements RayCastCallback{
                     closestFraction = fraction;
                     closestPointHit = pointHit;
                     closestObjectHit = hitObj;
+                    return fraction;
                 } else {
                     return 1;
                 }
@@ -33,13 +35,14 @@ public class WeaponCastCallback implements RayCastCallback{
                 closestFraction = fraction;
                 closestPointHit = pointHit;
                 closestObjectHit = hitObj;
+                return fraction;
             }
         }
 
         return 1;
     }
     public void cleanup() {
-        closestFraction = 1;
+        closestFraction = 1.01f;
         closestPointHit = null;
         closestObjectHit = null;
     }

@@ -115,7 +115,7 @@ public class GameEntity {
 
     void show() {
         //subclasses shouldn't need to override this method if done properly.
-
+        System.out.println(getClass().getName() + ">>> displaying GameEntity");
         Vec2 pixPos = pApp.box2d.getBodyPixelCoord(myBody);
         float pixWidth = pApp.box2d.scalarWorldToPixels(worldWidth);
         float pixHeight = pApp.box2d.scalarWorldToPixels(worldHeight);

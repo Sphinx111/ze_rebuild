@@ -240,7 +240,7 @@ public class enums {
 
         String[] getWeaponSounds(WeaponType testWeapon) {
             if (testWeapon == RIFLE) {
-                String[] returnStrings = {RIFLE_SOUND, RIFLE_SOUND, RIFLE_SOUND};
+                String[] returnStrings = {RIFLE_SOUND, RIFLE_SOUND, RIFLE_SOUND, RIFLE_SOUND};
                 return returnStrings;
             } else if (testWeapon == HANDGUN) {
                 String[] returnStrings = {HANDGUN_SOUND, HANDGUN_SOUND, HANDGUN_SOUND, HANDGUN_SOUND};
@@ -260,7 +260,7 @@ public class enums {
         float RIFLE_PUSHBACK = 120; //remember, this value is improved by the fire rate.
         float RIFLE_RANGE = 1500;
         float RIFLE_MAXSPREAD = 3 * (2 * PI / 360); //degrees + radians conversion.
-        int RIFLE_FIREDELAY = 4;
+        int RIFLE_FIREDELAY = 5;
         int RIFLE_MAGAZINESIZE = 30;
         int RIFLE_RELOADTIME = 120;
         String RIFLE_SOUND = "gunshot.mp3";
@@ -269,7 +269,7 @@ public class enums {
         float SMG_PUSHBACK = 120; //remember, this value is improved by the fire rate.
         float SMG_RANGE = 1500;
         float SMG_MAXSPREAD = 3 * (2 * PI / 360); //degrees + radians conversion.
-        int SMG_FIREDELAY = 4;
+        int SMG_FIREDELAY = 5;
         int SMG_MAGAZINESIZE = 30;
         int SMG_RELOADTIME = 120;
         String SMG_SOUND = "gunshot.mp3";
@@ -278,7 +278,7 @@ public class enums {
         float HANDGUN_PUSHBACK = 80;
         float HANDGUN_RANGE = 600;
         float HANDGUN_MAXSPREAD = 4.5f * (2 * PI / 360);
-        int HANDGUN_FIREDELAY = 6;
+        int HANDGUN_FIREDELAY = 10;
         int HANDGUN_MAGAZINESIZE = 12;
         int HANDGUN_RELOADTIME = 30;
         String HANDGUN_SOUND = "gunshot.mp3";

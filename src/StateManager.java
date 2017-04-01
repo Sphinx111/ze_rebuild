@@ -48,12 +48,14 @@ public class StateManager {
     }
 
     void passDraw() {
+        System.out.println(getClass().getName() + ">>> Passing tick to correct state:" + currentState);
         switch(currentState) {
             case STARTUP: this.update();
             break;
             case MENU: mainMenu.update();
             break;
             case GAMEPLAY: gameManager.update();
+                            pApp.inputHandler.update();
             break;
             case PAUSE: pauseMenu.update();
             break;
@@ -90,7 +92,6 @@ public class StateManager {
 
             //load gameManager, don't need initial setup yet (server must connect first)
             gameManager = new GameManager(pApp);
-            gameManager.setup();
             loadPercent = 50;
 
             //load pauseMenu, don't need initial setup yet (player must start game first)
@@ -104,6 +105,11 @@ public class StateManager {
             //load clientModule, run initial setup so app can find any servers running.
             client = new ClientModule(pApp);
             client.setup();
+            loadPercent = 80;
+
+            //run gameManager setup (TODO: Remove for production, testing only at this location)
+            gameManager.setup();
+
             loadPercent = 100;
 
             System.out.println("LoadThread finished processing");

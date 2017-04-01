@@ -12,6 +12,7 @@ public class Actor extends GameEntity {
     Weapon myWeapon;
     float maxSpeed;
     float FOV;
+    float ACCEL = 100;
 
     //"helper" fields
     int timeBitten;
@@ -19,7 +20,8 @@ public class Actor extends GameEntity {
     GameEntity target;
 
     public Actor (ze_rebuild parentApp) {
-        super.pApp = parentApp;
+        pApp = parentApp;
+        setup();
     }
     public void setActorProperties (enums.Team newTeam, enums.ActorType newActorType) {
         myTeam = newTeam;
@@ -42,11 +44,38 @@ public class Actor extends GameEntity {
     }
     public void addWeapon(enums.WeaponType newWeapon) {
         myWeapon = new Weapon(pApp);
-        myWeapon.setType(enums.WeaponType.RIFLE);
+        myWeapon.setup(this,newWeapon);
     }
     public void wasHit(Vec2 forceToApply,float damage) {
         health -= damage;
         applyForce(forceToApply);
+    }
+    public void move(Vec2 direction) {
+        Vec2 newForce = direction.mul(ACCEL);
+        applyForce(newForce);
+        speedCheck();
+    }
+    public void setFacing(float angle) {
+        myBody.setTransform(myBody.getWorldCenter(),angle);
+    }
+    public void shoot() {
+        myWeapon.shoot(myBody.getAngle());
+    }
+
+    @Override
+    public void update() {
+        speedCheck();
+        myWeapon.update();
+    }
+    public void speedCheck() {
+        //check whether I'm going above my maxspeed, if so, scale down to my maxspeed
+        Vec2 myTravel = myBody.getLinearVelocity();
+        if (myTravel.length() > maxSpeed) {
+            myBody.setLinearVelocity(new Vec2(myTravel.mul(maxSpeed/myTravel.length())));
+        }
+    }
+    public void setup() {
+        addWeapon(enums.WeaponType.RIFLE);
     }
 
 }
