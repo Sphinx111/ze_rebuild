@@ -25,7 +25,6 @@ public class GameManager {
     }
 
     void update() {
-        System.out.println(getClass().getName() + ">>> Received draw loop from stateManager! It's my turn!");
         mapHandler.update();
         pApp.box2d.step();
         mapHandler.show();

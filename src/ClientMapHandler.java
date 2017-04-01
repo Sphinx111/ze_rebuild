@@ -60,9 +60,8 @@ public class ClientMapHandler {
 
     public void applyInputToActor(Vec2 direction, boolean[] mouseButtons, float angleToFace, int ID) {
         //check the desired Actor exists.
-        System.out.println(getClass().getName() + ">>> Checking for actor with ID: " + ID);
         if (allObjects.containsKey(ID) && allObjects.get(ID) instanceof Actor) {
-            System.out.println(getClass().getName() + ">>> Desired Actor exists, applying input now...");
+            //System.out.println(getClass().getName() + ">>> Desired Actor exists, applying input now...");
             Actor actor = (Actor)allObjects.get(ID);
             actor.move(direction);
             actor.setFacing(angleToFace);

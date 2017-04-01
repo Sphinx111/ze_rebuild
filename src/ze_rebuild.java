@@ -17,11 +17,13 @@ public class ze_rebuild extends PApplet {
     public void settings() {
         //Set up with fixed initial size, set to allow resizing.
         size(1300,700);
-        //frame.setResizable(true);
+        //surface.setResizable(true);
     }
 
     public void setup() {
         pApp = this;
+
+        //surface.setResizable(true);
 
         //initialise box2d-to-processing interface
         box2d = new Box2DProcessing(pApp);
@@ -30,8 +32,8 @@ public class ze_rebuild extends PApplet {
         inputHandler = new InputHandler(pApp);
 
         //initiate state manager to pass setup/draw calls to different elements depending on state.
-        stateManager = new StateManager(this);
-        stateManager.setup(this);
+        stateManager = new StateManager(pApp);
+        stateManager.setup(pApp);
     }
 
     public void draw() {

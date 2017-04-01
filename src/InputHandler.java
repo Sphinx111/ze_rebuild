@@ -31,7 +31,6 @@ public class InputHandler {
         int localID = pApp.stateManager.client.myPlayerID;
         //if there's a game running, and the client has been assigned a player ID, send the current inputs
         if (currentState == enums.GAMESTATE.GAMEPLAY && localID != -1) {
-            System.out.println(getClass().getName() + ">>> game is running and player exists, getting input");
             float vertical1 = 0;
             float vertical2 = 0;
             if (keys[0]) {vertical1 = 1;}

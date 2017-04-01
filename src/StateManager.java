@@ -48,7 +48,6 @@ public class StateManager {
     }
 
     void passDraw() {
-        System.out.println(getClass().getName() + ">>> Passing tick to correct state:" + currentState);
         switch(currentState) {
             case STARTUP: this.update();
             break;
