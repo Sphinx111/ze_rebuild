@@ -49,17 +49,24 @@ public class StateManager {
 
     void passDraw() {
         switch(currentState) {
-            case STARTUP: this.update();
-            break;
-            case MENU: mainMenu.update();
-            break;
-            case GAMEPLAY: gameManager.update();
-                            pApp.inputHandler.update();
-            break;
-            case PAUSE: pauseMenu.update();
-            break;
-            case LOADING: loadManager.update();
-            break;
+            case STARTUP:
+                this.update();
+                break;
+            case MENU:
+                mainMenu.update();
+                break;
+            case GAMEPLAY:
+                gameManager.mainCamera.applyOffset();
+                gameManager.update();
+                pApp.inputHandler.update();
+                gameManager.mainCamera.removeOffset();
+                break;
+            case PAUSE:
+                pauseMenu.update();
+                break;
+            case LOADING:
+                loadManager.update();
+                break;
         }
 
         //always pass ticks to server/client modules,regardless of gamestate:

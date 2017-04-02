@@ -81,15 +81,21 @@ public class ClientMapHandler {
             float newWidth = (float)Math.random() * 4;
             float newHeight = (float)Math.random() * 2;
             enums.EntityType myType = null;
-            if (i < 29) {
+            if (i < 28) {
                 myType = enums.EntityType.FIXED;
-            } else {
-                newWidth = 2;
-                newHeight = 2;
+            } else if (i < 29){
+                newWidth = 1;
+                newHeight = 1;
                 myType = enums.EntityType.ACTOR;
                 pApp.stateManager.client.myPlayerID = uniqueIDCounter;
                 editorTeam = enums.Team.HUMAN;
                 editorActorType = enums.ActorType.SOLDIER;
+            } else {
+                newWidth = 1;
+                newHeight = 1;
+                myType = enums.EntityType.ACTOR;
+                editorTeam = enums.Team.ZOMBIE;
+                editorActorType = enums.ActorType.BASIC_ZOMBIE;
             }
 
             entityFactory(newOrigin,newWidth,newHeight,newAngle,myType,uniqueIDCounter);

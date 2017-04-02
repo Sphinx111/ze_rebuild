@@ -18,6 +18,7 @@ public class GameManager {
     void setup() {
         mapHandler = new ClientMapHandler(pApp);
         mainCamera = new Camera(pApp);
+        mainCamera.setup();
         mapHandler.setup();
         //initialize our fastRandomNumber class
         FastMath.initRand(pApp);

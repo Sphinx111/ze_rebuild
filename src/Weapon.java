@@ -109,8 +109,7 @@ public class Weapon {
 
             //tell mainCamera to apply screenshake
             int screenShakeAmt = getScreenShake(firer);
-            //TODO: send screenShake instructions to camera
-            //pApp.mainCamera.addScreenShake(screenShakeAmt);
+            pApp.stateManager.gameManager.mainCamera.addScreenshake(screenShakeAmt);
 
             //TODO: add sound here
 
@@ -151,7 +150,7 @@ public class Weapon {
         int newAmount = 0;
         if (firer.myID == pApp.stateManager.client.myPlayerID) {
             //if the player firing IS the player viewing this client
-            newAmount = (int)Math.floor(damage * 2);
+            newAmount = (int)Math.floor(damage/2);
         }
         return newAmount;
     }
