@@ -5,7 +5,6 @@
 import org.jbox2d.common.Vec2;
 
 import java.io.PrintWriter;
-import java.io.FileReader;
 import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +22,8 @@ public class ClientMapHandler {
     public void setup() {
         //DEBUG METHOD CALL
         testSetup();
+        editor = new MapEditor(pApp);
+        editor.setup(this);
     }
 
     //Gives entities a Unique ID number for serialization and save/load processes.
@@ -36,7 +37,11 @@ public class ClientMapHandler {
     BufferedReader readToLoad;
     String name = "testMap";
 
+    //Map editor module:
+    MapEditor editor;
+
     //helper variables - Editor
+    public boolean editorMode = false;
     enums.Team editorTeam = enums.Team.NONE;
     enums.ActorType editorActorType;
     enums.Team sensorFilterTeam = enums.Team.NONE;
@@ -103,17 +108,16 @@ public class ClientMapHandler {
         System.out.println(getClass().getName() + ">>> Finished testSetup method");
     }
 
+    public void toggleMapEditor() {
+        if (editorMode) {
+            editorMode = false;
+        } else {
+            editorMode = true;
+        }
+    }
 
-    GameEntity createEntityByMouse(Vec2 origin, Vec2 end, Vec2 objWidthSet, enums.EntityType type) {
-        float midX = (origin.x + end.x) / 2;
-        float midY = -(origin.y + end.y) / 2;
-        Vec2 midPoint = new Vec2(midX, midY);
-        Vec2 vecStartEnd = end.add(origin.mul(-1));
-        float angle = (float) Math.atan2(vecStartEnd.y, vecStartEnd.x);
-        float lengthOfLine = (float) Math.sqrt((vecStartEnd.x * vecStartEnd.x) + (vecStartEnd.y * vecStartEnd.y));
-        Vec2 objWidthVec = objWidthSet.add(end.mul(-1));
-        float widthOfLine = (float) Math.sqrt((objWidthVec.x * objWidthVec.x) + (objWidthVec.y * objWidthVec.y));
-        GameEntity newEntity = entityFactory(midPoint, lengthOfLine,widthOfLine,-angle,type,uniqueIDCounter);
+    GameEntity createEntityByMouse(Vec2 centerPoint, float angle, float length, float width, enums.EntityType type) {
+        GameEntity newEntity = entityFactory(centerPoint, length,width,angle,type,uniqueIDCounter);
         return newEntity;
     }
 
@@ -202,6 +206,9 @@ public class ClientMapHandler {
     void update() {
         for (GameEntity g : allObjects.values()) {
             g.update();
+        }
+        if (editorMode) {
+            editor.update();
         }
     }
 

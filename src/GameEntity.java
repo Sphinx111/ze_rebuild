@@ -1,11 +1,7 @@
-
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
 import processing.core.PImage;
-
-import javax.swing.text.html.parser.Entity;
-import java.util.HashMap;
 
 import static processing.core.PConstants.CENTER;
 
@@ -111,6 +107,7 @@ public class GameEntity {
         myFix = myBody.createFixture(fd);
         myBody.setUserData(this);
         myFix.setUserData(this);
+        myBody.setTransform(myBody.getWorldCenter(),angle);
     }
 
     void show() {

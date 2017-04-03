@@ -4,8 +4,6 @@
 import processing.core.PApplet;
 import shiffman.box2d.Box2DProcessing;
 
-import java.io.Serializable;
-
 public class ze_rebuild extends PApplet {
 
     public ze_rebuild pApp;

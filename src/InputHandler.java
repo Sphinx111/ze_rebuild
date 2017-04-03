@@ -86,10 +86,8 @@ public class InputHandler {
         } else if (pApp.keyCode == pApp.SHIFT) {
             keys[5] = true;
         } else if (pApp.key == 'M' || pApp.key == 'm') {
-            if (!keys[8]) {
-                keys[8] = true;
-            } else {
-                keys[8] = false;
+            if (pApp.stateManager.getGameState() == enums.GAMESTATE.GAMEPLAY) {
+                pApp.stateManager.gameManager.mapHandler.toggleMapEditor();
             }
         }
 
@@ -122,6 +120,13 @@ public class InputHandler {
 
         if (currentState == enums.GAMESTATE.MENU) {
             pApp.stateManager.mainMenu.receiveMouseClick();
+        }
+        //next section will be commented out if mouseClick is passed in inputHandler's update loop to editor.
+         else if (currentState == enums.GAMESTATE.GAMEPLAY) {
+            //if editor mode is running and gameplay is active, send click to editor mode.
+            if (pApp.stateManager.gameManager.mapHandler.editorMode) {
+                pApp.stateManager.gameManager.mapHandler.editor.receiveMouseClick();
+            }
         }
     }
     public void mouseOutCheck() {

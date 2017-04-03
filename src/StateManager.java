@@ -9,10 +9,10 @@ public class StateManager {
 
     private ze_rebuild pApp;
     protected enums.GAMESTATE currentState;
-    MainMenu mainMenu;
-    GameManager gameManager;
-    PauseMenu pauseMenu;
-    LoadManager loadManager;
+    public MainMenu mainMenu;
+    public GameManager gameManager;
+    public PauseMenu pauseMenu;
+    public LoadManager loadManager;
 
     public int loadPercent = 0;
 

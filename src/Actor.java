@@ -73,6 +73,7 @@ public class Actor extends GameEntity {
         if (myTravel.length() > maxSpeed) {
             myBody.setLinearVelocity(new Vec2(myTravel.mul(maxSpeed/myTravel.length())));
         }
+        //because this function is usually called before weapon hits are applied, weapon hits can push a player beyond their maxspeed, yay!
     }
     public void setup() {
         addWeapon(enums.WeaponType.RIFLE);

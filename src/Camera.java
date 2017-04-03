@@ -15,6 +15,9 @@ public class Camera {
     float fractionalAdjust = 1;
     float defFractionalAdjust = 0.1f;
 
+    float playerBodyOffsetX;
+    float getPlayerBodyOffsetY;
+
     float screenCenterX;
     float screenCenterY;
 

@@ -4,8 +4,6 @@
 
 import java.net.*;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 public class ClientModule {
     //This class manages network functions for the client app.

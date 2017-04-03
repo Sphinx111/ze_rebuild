@@ -1,6 +1,4 @@
 import org.jbox2d.common.Vec2;
-import processing.core.PImage;
-import processing.core.PShape;
 
 /**
  * Created by Eddy on 30/03/2017.
@@ -173,8 +171,6 @@ public class Weapon {
         String[] graphics = newType.getGraphics(newType);
         myShape = graphics[0];
         myTexture = graphics[1];
-
-
     }
 
 }

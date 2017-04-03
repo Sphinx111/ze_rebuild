@@ -1,7 +1,5 @@
 import org.jbox2d.common.Vec2;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
