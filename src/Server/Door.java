@@ -1,3 +1,5 @@
+package Server;
+
 import org.jbox2d.common.Vec2;
 
 import java.util.Collection;
@@ -9,7 +11,7 @@ import java.util.HashMap;
 public class Door extends GameEntity {
 
     //Door fields
-    HashMap<Integer,GameEntity> doorLinks = new HashMap<Integer,GameEntity>(); //
+    HashMap<Integer, GameEntity> doorLinks = new HashMap<Integer, GameEntity>(); //
     Vec2 doorClosedPos;
     Vec2 doorOpenPos;
     Vec2 hinge;

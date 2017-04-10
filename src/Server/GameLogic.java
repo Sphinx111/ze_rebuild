@@ -1,3 +1,5 @@
+package Server;
+
 import org.jbox2d.common.Vec2;
 
 import java.util.Collection;

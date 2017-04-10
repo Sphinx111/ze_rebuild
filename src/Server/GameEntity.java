@@ -1,9 +1,9 @@
+package Server;
+
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
 import processing.core.PImage;
-
-import java.io.Serializable;
 
 import static processing.core.PConstants.CENTER;
 

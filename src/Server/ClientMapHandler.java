@@ -1,10 +1,11 @@
-/**
+package Server; /**
  * Created by Eddy on 30/03/2017.
  */
 
 import org.jbox2d.common.Vec2;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -29,9 +30,9 @@ public class ClientMapHandler {
     public int uniqueIDCounter = 0;
 
     //Hashmap of all Entities currently loaded allows quick access by the entity's ID number.
-    HashMap<Integer,GameEntity> allObjects = new HashMap<Integer, GameEntity>();
+    HashMap<Integer, GameEntity> allObjects = new HashMap<Integer, GameEntity>();
     ArrayList<Integer> objectsToRemove = new ArrayList<Integer>();
-    HashMap<Integer,GameEntity> objectsUpdated = new HashMap<Integer,GameEntity>(); //any objects moved this turn are listed for subsequent serialization.
+    HashMap<Integer, GameEntity> objectsUpdated = new HashMap<Integer, GameEntity>(); //any objects moved this turn are listed for subsequent serialization.
     PrintWriter printToSave;
     BufferedReader readToLoad;
     String name = "testMap";

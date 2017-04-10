@@ -1,11 +1,12 @@
+package Server;
+
+import org.jbox2d.callbacks.QueryCallback;
 import org.jbox2d.collision.AABB;
 import org.jbox2d.common.Vec2;
-import org.jbox2d.callbacks.QueryCallback;
 import org.jbox2d.dynamics.Fixture;
 
 import java.util.ArrayList;
 
-import static processing.core.PConstants.CENTER;
 import static processing.core.PConstants.RADIUS;
 
 /**
@@ -95,7 +96,7 @@ public class MapEditor {
     public void setCurrentEditorMode (enums.EntityType newMode) {
         currentEditorMode = newMode;
     }
-    GameEntity getMapObjectUnderMouse(enums.EntityType desiredType,enums.EntityType alternateType, enums.EntityType thirdType) {
+    GameEntity getMapObjectUnderMouse(enums.EntityType desiredType, enums.EntityType alternateType, enums.EntityType thirdType) {
         Vec2 clickPos = new Vec2(worldMousePos.x - 0.5f, worldMousePos.y - 0.5f);
         Vec2 boundingBox = new Vec2(1,1);
         GameEntity result = null;
@@ -122,7 +123,7 @@ public class MapEditor {
     }
     private void addLinkFromAToB (GameEntity source, GameEntity dest) {
         System.out.println(getClass().getName() + ">>> Adding link from " + source.getClass().getName() + " to " + dest.getClass().getName());
-        if (source instanceof  Sensor) {
+        if (source instanceof Sensor) {
             Sensor sourceSensor = (Sensor)source;
             sourceSensor.addLink(dest);
         } else if (source instanceof GameLogic) {

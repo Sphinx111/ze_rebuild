@@ -1,6 +1,6 @@
-import org.jbox2d.common.Vec2;
+package Server;
 
-import java.io.Serializable;
+import org.jbox2d.common.Vec2;
 
 /**
  * Created by Eddy on 30/03/2017.

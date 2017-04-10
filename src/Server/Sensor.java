@@ -1,3 +1,5 @@
+package Server;
+
 import org.jbox2d.dynamics.contacts.ContactEdge;
 
 import java.util.ArrayList;
@@ -10,12 +12,12 @@ import java.util.HashMap;
 public class Sensor extends GameEntity {
 
     //Sensor fields
-    HashMap<Integer,GameEntity> sensorLinks = new HashMap<Integer,GameEntity>();
+    HashMap<Integer, GameEntity> sensorLinks = new HashMap<Integer, GameEntity>();
     int tickButtonPressed = -1;
     boolean wasPressed = false;
     boolean resettable = false;
     enums.Team teamFilter = null;
-    HashMap<Integer,GameEntity> touchingObjects = new HashMap<Integer,GameEntity>();
+    HashMap<Integer, GameEntity> touchingObjects = new HashMap<Integer, GameEntity>();
 
     public Sensor(ze_rebuild parentApp) {
         super.pApp = parentApp;
